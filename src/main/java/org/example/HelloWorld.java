@@ -1,12 +1,17 @@
 package org.example;
 
+import spark.Request;
+import spark.Session;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.example.SecureURLReader.readSecureURL;
 import static spark.Spark.*;
+
 public class HelloWorld {
 
     private static Map<String, String> users = new HashMap<>();
@@ -22,13 +27,10 @@ public class HelloWorld {
             System.out.println(username + " " + password);
             if (users.containsKey(username) && users.get(username).equals(hashGenerator(password))) {
                 System.out.println("Login Success");
-                res.redirect("/loggedInPage.html");
+                readSecureURL("keystores/myTrustStore.p12", "123456");
+                res.redirect("https://localhost:5001/loggedInPage");
             }
             return "There was an error, try again";
-        });
-
-        get("/getLoggedInPage",  (req, res) -> {
-            return SecureURLReader.readSecureURL("https://localhost:5001/hello");
         });
     }
 
@@ -62,6 +64,6 @@ public class HelloWorld {
         if(System.getenv("PORT")!= null){
             return Integer.parseInt(System.getenv("PORT"));
         }
-        return 5001;
+        return 5000;
     }
 }
